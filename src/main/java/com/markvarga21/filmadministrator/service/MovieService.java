@@ -30,4 +30,9 @@ public class MovieService {
                 .map(this.movieMapper::mapMovieToDto)
                 .toList();
     }
+
+    @Transactional
+    public int deleteMovie(String title) {
+        return this.movieRepository.deleteByTitle(title);
+    }
 }

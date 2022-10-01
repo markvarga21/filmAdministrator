@@ -45,5 +45,12 @@ public class MovieCommandController {
         return this.formatter.formatMovieList(movies);
     }
 
-
+    @ShellMethod(value = "Deleting movies.", key = "delete movie")
+    @ShellMethodAvailability("checkAdmin")
+    public String deleteMovie(String title) {
+        if (this.movieService.deleteMovie(title) == 1) {
+            return String.format("Movie '%s' deleted successfully!", title);
+        }
+        return String.format("Something went wrong when deleting movie '%s'", title);
+    }
 }
