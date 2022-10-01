@@ -51,4 +51,8 @@ public class MovieService {
 
         return String.format("Movie '%s' updated successfully!", movieDTO.getTitle());
     }
+
+    public boolean movieExists(String movieName) {
+        return this.movieRepository.existsById(movieName);
+    }
 }

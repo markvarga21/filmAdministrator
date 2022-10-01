@@ -54,4 +54,8 @@ public class RoomService {
 
         return String.format("Room '%s' updated successfully!", roomToUpdate.getName());
     }
+
+    public boolean roomExists(String roomName) {
+        return this.roomRepository.existsById(roomName);
+    }
 }
