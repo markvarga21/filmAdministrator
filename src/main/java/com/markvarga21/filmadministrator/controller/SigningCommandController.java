@@ -15,8 +15,23 @@ public class SigningCommandController {
         return this.signingService.logInAsAdmin(userName, password);
     }
 
-    @ShellMethod(value = "Describing signed in account.", key = "describe")
+    @ShellMethod(value = "Sign in option for user.", key = "sign in")
+    public String signInAsUser(String userName, String password) {
+        return this.signingService.logInUser(userName, password);
+    }
+
+    @ShellMethod(value = "Sign up for users.", key = "sign up")
+    public String signUpUser(String userName, String password) {
+        return this.signingService.signUpUser(userName, password);
+    }
+
+    @ShellMethod(value = "Describing signed in account.", key = "describe account")
     public String describeAccount() {
         return this.signingService.describeAccount();
+    }
+
+    @ShellMethod(value = "Command for signing out.", key = "sign out")
+    public String signOut() {
+        return this.signingService.signOutUser();
     }
 }

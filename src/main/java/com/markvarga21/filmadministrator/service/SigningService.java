@@ -1,20 +1,29 @@
 package com.markvarga21.filmadministrator.service;
 
+import com.markvarga21.filmadministrator.dto.UserDTO;
 import com.markvarga21.filmadministrator.dto.UserSessionDTO;
+import com.markvarga21.filmadministrator.entity.User;
 import com.markvarga21.filmadministrator.entity.UserSession;
+import com.markvarga21.filmadministrator.mapping.UserMapper;
 import com.markvarga21.filmadministrator.mapping.UserSessionMapper;
+import com.markvarga21.filmadministrator.repository.UserRepository;
 import com.markvarga21.filmadministrator.repository.UserSessionRepository;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
+import javax.transaction.Transactional;
 
 @Service
 @Data
 @RequiredArgsConstructor
 public class SigningService {
     private final UserSessionRepository userSessionRepository;
+    private final UserRepository userRepository;
     private final UserSessionMapper userSessionMapper;
+    private final UserMapper userMapper;
 
+    @Transactional
     public String logInAsAdmin(String userName, String password) {
         if (isSomeoneLoggedIn()) {
             return "Someone is already logged in, please log out first!";
@@ -42,5 +51,46 @@ public class SigningService {
             return String.format("Signed in with privileged account '%s'", userName);
         }
         return String.format("Signed in with account '%s'", userName);
+    }
+
+    @Transactional
+    public String logInUser(String userName, String password) {
+        var userOptional = this.userRepository.getUserByUserName(userName);
+        if (userOptional.isEmpty()) {
+            return String.format("There is no user signed up with username '%s'", userName);
+        }
+        User user = userOptional.get();
+        if (!user.getPassword().equals(password)) {
+            return String.format("Wrong password entered for user '%s'", userName);
+        }
+
+        if (isSomeoneLoggedIn()) {
+            return "Someone is already logged in, please log out first!";
+        }
+
+        UserSessionDTO userSessionDTO = new UserSessionDTO(userName);
+        this.userSessionRepository.save(this.userSessionMapper.mapUserSessionDtoToEntity(userSessionDTO));
+        return "Login successful!";
+    }
+
+    @Transactional
+    public String signUpUser(String userName, String password) {
+        UserDTO userDTO = new UserDTO(userName, password);
+        this.userRepository.save(this.userMapper.mapUserDtoToEntity(userDTO));
+        return String.format("User '%s' signed up successfully!", userName);
+    }
+
+    @Transactional
+    public String signOutUser() {
+        if (!isSomeoneLoggedIn()) {
+            return "You cannot sign out, because no one is logged in!";
+        }
+        UserSession userSession = this.userSessionRepository.findAll().get(0);
+        //UserSessionDTO userSessionDTO = this.userSessionMapper.mapUserSessionToDto(userSession);
+        String userName = userSession.getUserName();
+
+        this.userSessionRepository.deleteUserSessionByUserName(userName);
+//        return userSession.getUserName();
+        return String.format("User '%s' logged out successfully", userName);
     }
 }
