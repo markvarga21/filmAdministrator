@@ -10,7 +10,6 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class MovieMapper {
     private final ModelMapper modelMapper;
-
     public MovieDTO mapMovieToDto(Movie movie) {
         return this.modelMapper.map(movie, MovieDTO.class);
     }
