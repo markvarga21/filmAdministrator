@@ -53,4 +53,11 @@ public class MovieCommandController {
         }
         return String.format("Something went wrong when deleting movie '%s'", title);
     }
+
+    @ShellMethod(value = "Updating movies.", key = "update movie")
+    @ShellMethodAvailability("checkAdmin")
+    public String updateMovie(String title, String genre, Long length) {
+        MovieDTO movieToSave = new MovieDTO(title, genre, length);
+        return this.movieService.updateMovie(movieToSave);
+    }
 }

@@ -35,4 +35,20 @@ public class MovieService {
     public int deleteMovie(String title) {
         return this.movieRepository.deleteByTitle(title);
     }
+
+    @Transactional
+    public String updateMovie(final MovieDTO movieDTO) {
+        var movieOptional = this.movieRepository.findById(movieDTO.getTitle());
+
+        if (movieOptional.isEmpty()) {
+            return String.format("Cannot update, because movie '%s' not found!", movieDTO.getTitle());
+        }
+
+        Movie movieToUpdate = movieOptional.get();
+        movieToUpdate.setGenre(movieDTO.getGenre());
+        movieToUpdate.setLength(movieDTO.getLength());
+        this.movieRepository.save(movieToUpdate);
+
+        return String.format("Movie '%s' updated successfully!", movieDTO.getTitle());
+    }
 }
