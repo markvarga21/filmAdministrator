@@ -86,11 +86,18 @@ public class SigningService {
             return "You cannot sign out, because no one is logged in!";
         }
         UserSession userSession = this.userSessionRepository.findAll().get(0);
-        //UserSessionDTO userSessionDTO = this.userSessionMapper.mapUserSessionToDto(userSession);
         String userName = userSession.getUserName();
 
         this.userSessionRepository.deleteUserSessionByUserName(userName);
-//        return userSession.getUserName();
         return String.format("User '%s' logged out successfully", userName);
+    }
+
+    public boolean isAdminLoggedIn() {
+        var userSessions = this.userSessionRepository.findAll();
+        if (userSessions.size() != 0) {
+            String loggedInUser = userSessions.get(0).getUserName();
+            return loggedInUser.equals("admin");
+        }
+        return false;
     }
 }
