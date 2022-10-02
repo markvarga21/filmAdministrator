@@ -55,4 +55,13 @@ public class MovieService {
     public boolean movieExists(String movieName) {
         return this.movieRepository.existsById(movieName);
     }
+
+    public Long getMovieLengthForTitle(String movieName) {
+        return this.getMovies()
+                .stream()
+                .filter(movieDTO1 -> movieDTO1.getTitle().equals(movieName))
+                .findFirst()
+                .get()
+                .getLength();
+    }
 }

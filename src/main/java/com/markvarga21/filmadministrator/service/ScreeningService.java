@@ -26,15 +26,28 @@ public class ScreeningService {
     @Transactional
     public String saveScreening(ScreeningDTO screeningToSave) {
         if (!this.screeningValidator.isValidReservation(screeningToSave)) {
-            return "Screening invalid!";
+            return "Screening invalid, because film or room does not exist!";
+        }
+
+        String movieName = screeningToSave.getMovieName();
+        String roomName = screeningToSave.getRoomName();
+        String timeOfScreening = screeningToSave.getTimeOfScreening();
+
+
+        if (!this.screeningValidator.isValidScreenDateTime(movieName, timeOfScreening, this.getScreeningsForRoom(roomName))) {
+            return "There is an overlapping screening";
+        }
+
+        if (!this.screeningValidator.isPausePresent(movieName, roomName, timeOfScreening)) {
+            return "This would start in the break period after another screening in this room";
         }
 
         Screening screening = this.screeningMapper.mapScreeningDtoToEntity(screeningToSave);
         this.screeningRepository.save(screening);
         return String.format("Screening '%s' in room '%s' on '%s' saved!",
-                screeningToSave.getMovieName(),
-                screeningToSave.getRoomName(),
-                screeningToSave.getTimeOfScreening()
+                movieName,
+                roomName,
+                timeOfScreening
         );
     }
 
@@ -50,5 +63,12 @@ public class ScreeningService {
     public void deleteScreening(String movieName, String roomName, String timeOfScreening) {
         CompositeKey compositeKey = new CompositeKey(movieName, roomName, this.converter.convertScreeningTimeString(timeOfScreening));
         this.screeningRepository.deleteById(compositeKey);
+    }
+
+    public List<ScreeningDTO> getScreeningsForRoom(String roomName) {
+        return this.getScreenings()
+                .stream()
+                .filter(screeningDTO -> screeningDTO.getRoomName().equals(roomName))
+                .toList();
     }
 }
