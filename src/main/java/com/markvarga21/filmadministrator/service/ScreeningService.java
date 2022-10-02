@@ -6,6 +6,8 @@ import com.markvarga21.filmadministrator.entity.Room;
 import com.markvarga21.filmadministrator.entity.Screening;
 import com.markvarga21.filmadministrator.mapping.ScreeningMapper;
 import com.markvarga21.filmadministrator.repository.ScreeningRepository;
+import com.markvarga21.filmadministrator.util.CompositeKey;
+import com.markvarga21.filmadministrator.util.ScreeningDateTimeConverter;
 import com.markvarga21.filmadministrator.util.ScreeningValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -19,6 +21,7 @@ public class ScreeningService {
     private final ScreeningMapper screeningMapper;
     private final ScreeningRepository screeningRepository;
     private final ScreeningValidator screeningValidator;
+    private final ScreeningDateTimeConverter converter;
 
     @Transactional
     public String saveScreening(ScreeningDTO screeningToSave) {
@@ -41,5 +44,11 @@ public class ScreeningService {
             .stream()
             .map(this.screeningMapper::mapScreeningToDto)
             .toList();
+    }
+
+    @Transactional
+    public void deleteScreening(String movieName, String roomName, String timeOfScreening) {
+        CompositeKey compositeKey = new CompositeKey(movieName, roomName, this.converter.convertScreeningTimeString(timeOfScreening));
+        this.screeningRepository.deleteById(compositeKey);
     }
 }

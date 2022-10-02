@@ -39,20 +39,11 @@ public class ScreeningCommandController {
         var screenings = this.screeningService.getScreenings();
         return this.formatter.formatScreenings(screenings);
     }
-//
-//    @ShellMethod(value = "Deleting rooms.", key = "delete room")
-//    @ShellMethodAvailability("checkAdmin")
-//    public String deleteRoom(String name) {
-//        if (this.roomService.deleteRoom(name) == 1) {
-//            return String.format("Room '%s' deleted successfully!", name);
-//        }
-//        return String.format("Something went wrong when deleting room '%s'", name);
-//    }
-//
-//    @ShellMethod(value = "Updating rooms.", key = "update room")
-//    @ShellMethodAvailability("checkAdmin")
-//    public String updateRoom(String name, Long chairRowsCount, Long chairColumnsCount) {
-//        RoomDTO roomToUpdate = new RoomDTO(name, chairRowsCount, chairColumnsCount);
-//        return this.roomService.updateRoom(roomToUpdate);
-//    }
+
+    @ShellMethod(value = "Deleting screenings.", key = "delete screening")
+    @ShellMethodAvailability("checkAdmin")
+    public String deleteScreening(String movieName, String roomName, String timeOfScreening) {
+        this.screeningService.deleteScreening(movieName, roomName, timeOfScreening);
+        return String.format("Screening '%s' deleted successfully!", movieName);
+    }
 }
