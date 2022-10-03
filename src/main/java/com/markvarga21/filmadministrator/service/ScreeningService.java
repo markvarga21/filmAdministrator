@@ -14,10 +14,12 @@ import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.util.List;
+import java.util.logging.Logger;
 
 @Service
 @RequiredArgsConstructor
 public class ScreeningService {
+    Logger log = Logger.getLogger(ScreeningService.class.getName());
     private final ScreeningMapper screeningMapper;
     private final ScreeningRepository screeningRepository;
     private final ScreeningValidator screeningValidator;
@@ -33,17 +35,20 @@ public class ScreeningService {
         String roomName = screeningToSave.getRoomName();
         String timeOfScreening = screeningToSave.getTimeOfScreening();
 
-
-        if (!this.screeningValidator.isValidScreenDateTime(movieName, timeOfScreening, this.getScreeningsForRoom(roomName))) {
+        var screeningsForRoom = this.getScreeningsForRoom(roomName);
+        if (!this.getScreenings().isEmpty() &&
+                !this.screeningValidator.isValidScreenDateTime(movieName, timeOfScreening, screeningsForRoom)) {
             return "There is an overlapping screening";
         }
 
-        if (!this.screeningValidator.isPausePresent(movieName, roomName, timeOfScreening)) {
+        if (!this.getScreenings().isEmpty() &&
+                !this.screeningValidator.isPausePresent(movieName, roomName, timeOfScreening, screeningsForRoom)) {
             return "This would start in the break period after another screening in this room";
         }
 
         Screening screening = this.screeningMapper.mapScreeningDtoToEntity(screeningToSave);
         this.screeningRepository.save(screening);
+
         return String.format("Screening '%s' in room '%s' on '%s' saved!",
                 movieName,
                 roomName,
