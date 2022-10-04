@@ -100,4 +100,11 @@ public class SigningService {
         }
         return false;
     }
+
+    public String getLoggedInUser() {
+        return this.userRepository
+                .findAll()
+                .get(0)
+                .getUserName();
+    }
 }
