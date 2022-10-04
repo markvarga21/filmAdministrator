@@ -38,7 +38,7 @@ public class SigningService {
     }
 
     public boolean isSomeoneLoggedIn() {
-        return this.userSessionRepository.findAll().size() != 0;
+        return !this.userSessionRepository.findAll().isEmpty();
     }
 
     public String describeAccount() {
@@ -83,21 +83,30 @@ public class SigningService {
     @Transactional
     public String signOutUser() {
         if (!isSomeoneLoggedIn()) {
-            return "You cannot sign out, because no one is logged in!";
+            return "You cannot sign out, because no one is signed in!";
         }
         UserSession userSession = this.userSessionRepository.findAll().get(0);
         String userName = userSession.getUserName();
 
         this.userSessionRepository.deleteUserSessionByUserName(userName);
-        return String.format("User '%s' logged out successfully", userName);
+        return String.format("User '%s' sign out successfully", userName);
     }
 
     public boolean isAdminLoggedIn() {
         var userSessions = this.userSessionRepository.findAll();
-        if (userSessions.size() != 0) {
+        if (!userSessions.isEmpty()) {
             String loggedInUser = userSessions.get(0).getUserName();
             return loggedInUser.equals("admin");
         }
         return false;
+    }
+
+    public String getLoggedInUser() {
+        var userOptional = this.userSessionRepository
+                .findAll()
+                .stream()
+                .map(UserSession::getUserName)
+                .findFirst();
+        return userOptional.isEmpty() ? "" : userOptional.get();
     }
 }

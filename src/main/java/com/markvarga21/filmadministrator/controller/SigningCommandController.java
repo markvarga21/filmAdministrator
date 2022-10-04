@@ -1,5 +1,6 @@
 package com.markvarga21.filmadministrator.controller;
 
+import com.markvarga21.filmadministrator.service.BookingService;
 import com.markvarga21.filmadministrator.service.SigningService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.shell.standard.ShellComponent;
@@ -9,6 +10,7 @@ import org.springframework.shell.standard.ShellMethod;
 @RequiredArgsConstructor
 public class SigningCommandController {
     private final SigningService signingService;
+    private final BookingService bookingService;
 
     @ShellMethod(value = "Sign in option for admin.", key = "sign in privileged")
     public String signInAdmin(String userName, String password) {
@@ -27,8 +29,18 @@ public class SigningCommandController {
 
     @ShellMethod(value = "Describing signed in account.", key = "describe account")
     public String describeAccount() {
-        // TODO adding bookings
-        return this.signingService.describeAccount();
+        String userName = this.signingService.getLoggedInUser();
+        if (userName.isEmpty()) {
+            return "You are not signed in";
+        } else {
+            String accountInfo = this.signingService.describeAccount();
+            if (userName.equals("admin")) {
+                return accountInfo;
+            } else {
+                String bookingInfo = this.bookingService.getBookingsForUser(userName);
+                return String.format("%s%n%s", accountInfo, bookingInfo);
+            }
+        }
     }
 
     @ShellMethod(value = "Command for signing out.", key = "sign out")

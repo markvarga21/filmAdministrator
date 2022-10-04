@@ -36,12 +36,12 @@ public class ScreeningService {
         String timeOfScreening = screeningToSave.getTimeOfScreening();
 
         var screeningsForRoom = this.getScreeningsForRoom(roomName);
-        if (!this.getScreenings().isEmpty() &&
+        if (!screeningsForRoom.isEmpty() &&
                 !this.screeningValidator.isValidScreenDateTime(movieName, timeOfScreening, screeningsForRoom)) {
             return "There is an overlapping screening";
         }
 
-        if (!this.getScreenings().isEmpty() &&
+        if (!screeningsForRoom.isEmpty() &&
                 !this.screeningValidator.isPausePresent(movieName, roomName, timeOfScreening, screeningsForRoom)) {
             return "This would start in the break period after another screening in this room";
         }
