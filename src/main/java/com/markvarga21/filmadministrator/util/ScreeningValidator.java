@@ -17,7 +17,6 @@ import java.util.logging.Logger;
 @Component
 @RequiredArgsConstructor
 public class ScreeningValidator {
-    Logger log = Logger.getLogger(ScreeningValidator.class.getName());
     private final MovieService movieService;
     private final RoomService roomService;
     private final ScreeningDateTimeConverter converter;
@@ -42,16 +41,9 @@ public class ScreeningValidator {
         var newScreeningStart = this.converter.convertScreeningTimeString(dateTime);
         var newScreeningEnd = this.calculateScreeningEndTime(movieName, newScreeningStart);
 
-        log.info("Screening to add start date: " + newScreeningStart);
-        log.info("Screening to add end date: " + newScreeningEnd);
-
-        log.info("Screenings in the room: " + screeningsInTheRoom);
         for (var screening : screeningsInTheRoom) {
             var currentlyScreeningStart = this.converter.convertScreeningTimeString(screening.getTimeOfScreening());
             var currentlyScreeningEnd = this.calculateScreeningEndTime(screening.getMovieName(), currentlyScreeningStart);
-            log.info("currentlyScreeningStart: " + currentlyScreeningStart);
-            log.info("currentlyScreeningEnd: " + currentlyScreeningEnd);
-
             if (!this.isOverlapping(
                     newScreeningStart,
                     newScreeningEnd,
@@ -82,8 +74,6 @@ public class ScreeningValidator {
         for (var screening : screeningsInTheRoom) {
             var currentlyScreeningStart = this.converter.convertScreeningTimeString(screening.getTimeOfScreening());
             var currentlyScreeningEnd = this.calculateScreeningEndTime(screening.getMovieName(), currentlyScreeningStart);
-            log.info("currentlyScreeningStart: " + currentlyScreeningStart);
-            log.info("currentlyScreeningEnd: " + currentlyScreeningEnd);
 
             if (!this.isPausePresentForDates(
                     newScreeningStart,
@@ -106,7 +96,6 @@ public class ScreeningValidator {
     }
 
     private long calculateMinutesBetweenTwoDates(LocalDateTime fromDate, LocalDateTime toDate) {
-        log.info("Time between " + fromDate + " and " + toDate + " is " + ChronoUnit.MINUTES.between(fromDate, toDate));
         return ChronoUnit.MINUTES.between(fromDate, toDate);
     }
 }

@@ -30,9 +30,17 @@ public class SigningCommandController {
     @ShellMethod(value = "Describing signed in account.", key = "describe account")
     public String describeAccount() {
         String userName = this.signingService.getLoggedInUser();
-        String accountInfo = this.signingService.describeAccount();
-        String bookingInfo = this.bookingService.getBookingsForUser(userName);
-        return String.format("%s%n%s", accountInfo, bookingInfo);
+        if (userName.isEmpty()) {
+            return "You are not signed in";
+        } else {
+            String accountInfo = this.signingService.describeAccount();
+            if (userName.equals("admin")) {
+                return accountInfo;
+            } else {
+                String bookingInfo = this.bookingService.getBookingsForUser(userName);
+                return String.format("%s%n%s", accountInfo, bookingInfo);
+            }
+        }
     }
 
     @ShellMethod(value = "Command for signing out.", key = "sign out")
