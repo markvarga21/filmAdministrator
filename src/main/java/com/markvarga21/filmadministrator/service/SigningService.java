@@ -94,7 +94,7 @@ public class SigningService {
 
     public boolean isAdminLoggedIn() {
         var userSessions = this.userSessionRepository.findAll();
-        if (userSessions.size() != 0) {
+        if (!userSessions.isEmpty()) {
             String loggedInUser = userSessions.get(0).getUserName();
             return loggedInUser.equals("admin");
         }

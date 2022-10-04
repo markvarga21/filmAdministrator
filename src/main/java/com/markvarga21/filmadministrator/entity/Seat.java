@@ -4,7 +4,6 @@ import com.markvarga21.filmadministrator.util.SeatCompositeKey;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.ToString;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -14,6 +13,7 @@ import javax.persistence.IdClass;
 @IdClass(SeatCompositeKey.class)
 @AllArgsConstructor
 @NoArgsConstructor
+@Data
 public class Seat {
     @Id
     private String roomName;

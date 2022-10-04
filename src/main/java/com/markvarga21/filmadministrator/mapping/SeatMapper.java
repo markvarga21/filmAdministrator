@@ -16,7 +16,6 @@ public class SeatMapper {
     }
 
     public SeatDTO convertSeatEntityToDto(Seat seat) {
-        // TODO might not be working
-        return this.modelMapper.map(seat, SeatDTO.class);
+        return new SeatDTO(seat.getRoomName(), seat.getSeatRow(), seat.getSeatColumn());
     }
 }
