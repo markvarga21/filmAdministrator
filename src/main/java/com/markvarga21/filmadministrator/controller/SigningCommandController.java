@@ -27,6 +27,7 @@ public class SigningCommandController {
 
     @ShellMethod(value = "Describing signed in account.", key = "describe account")
     public String describeAccount() {
+        // TODO adding bookings
         return this.signingService.describeAccount();
     }
 
