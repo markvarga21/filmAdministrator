@@ -35,16 +35,16 @@ public class BookingService {
 
     public String saveBookings(String userName, String movieTitle, String roomName, String timeOfScreening, String seatsToBook) {
         List<SeatDTO> seats = this.seatConverter.convertSeatStringToList(seatsToBook, roomName);
-        List<BookingDTO> allBookings = this.getAllBookings();
         List<Booking> bookingsToSave = new ArrayList<>();
+        List<BookingDTO> bookingsForScreening = this.getBookingsForScreening(new ScreeningDTO(movieTitle, roomName, timeOfScreening));
         String seatsString = String.join(", ", seats.stream().map(SeatDTO::toString).toList());
         for (SeatDTO seatDTO : seats) {
             Seat seat = this.seatMapper.convertSeatDtoToEntity(seatDTO);
             if (!this.bookingValidator.isValidSeatForRoom(roomName, seatDTO)) {
                 return String.format("Seat %s does not exist in this room", seatDTO);
             }
-            if (!this.bookingValidator.isSeatFree(allBookings, seatDTO)) {
-                return String.format("Seat %s is already taken", seat);
+            if (!this.bookingValidator.isSeatFree(bookingsForScreening, seatDTO)) {
+                return String.format("Seat %s is already taken", seatDTO);
             }
             this.seatRepository.save(seat);
             LocalDateTime screeningTime = this.dateTimeConverter.convertScreeningTimeString(timeOfScreening);
@@ -60,9 +60,11 @@ public class BookingService {
         return String.format("Seats booked: %s; the price for this booking is %d HUF", seatsString, 1500);
     }
 
-    public List<BookingDTO> getAllBookings() {
+    private List<BookingDTO> getBookingsForScreening(ScreeningDTO screeningDTO) {
+        // TODO this throws an error because it's not flushed and nor transient
         return this.bookingRepository
-                .findAll()
+                .getBookingsByScreening(this.screeningMapper.mapScreeningDtoToEntity(screeningDTO))
+                .get()
                 .stream()
                 .map(this.bookingMapper::convertBookingEntityToDto)
                 .toList();

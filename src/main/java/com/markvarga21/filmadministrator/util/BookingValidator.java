@@ -22,7 +22,8 @@ public class BookingValidator {
                             && seatToCheck.getSeatRow() <= roomDTO.getChairRowsCount());
     }
 
-    public boolean isSeatFree(List<BookingDTO> allBookings, SeatDTO seatDTO) {
-        return true;
+    public boolean isSeatFree(List<BookingDTO> bookingsForScreening, SeatDTO seatDTO) {
+        return bookingsForScreening.stream()
+                .noneMatch(bookingDTO -> bookingDTO.getBookedSeat().equals(seatDTO));
     }
 }

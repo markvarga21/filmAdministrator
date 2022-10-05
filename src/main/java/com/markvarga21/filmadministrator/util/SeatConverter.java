@@ -1,7 +1,6 @@
 package com.markvarga21.filmadministrator.util;
 
 import com.markvarga21.filmadministrator.dto.SeatDTO;
-import com.markvarga21.filmadministrator.entity.Seat;
 import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
