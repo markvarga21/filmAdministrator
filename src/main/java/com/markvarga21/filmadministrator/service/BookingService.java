@@ -11,6 +11,7 @@ import com.markvarga21.filmadministrator.mapping.ScreeningMapper;
 import com.markvarga21.filmadministrator.mapping.SeatMapper;
 import com.markvarga21.filmadministrator.repository.BookingRepository;
 import com.markvarga21.filmadministrator.repository.SeatRepository;
+import com.markvarga21.filmadministrator.util.BookingValidator;
 import com.markvarga21.filmadministrator.util.ScreeningDateTimeConverter;
 import com.markvarga21.filmadministrator.util.SeatConverter;
 import lombok.RequiredArgsConstructor;
@@ -30,13 +31,21 @@ public class BookingService {
     private final ScreeningDateTimeConverter dateTimeConverter;
     private final BookingMapper bookingMapper;
     private final ScreeningMapper screeningMapper;
+    private final BookingValidator bookingValidator;
 
     public String saveBookings(String userName, String movieTitle, String roomName, String timeOfScreening, String seatsToBook) {
         List<SeatDTO> seats = this.seatConverter.convertSeatStringToList(seatsToBook, roomName);
         List<Booking> bookingsToSave = new ArrayList<>();
+        List<BookingDTO> bookingsForScreening = this.getBookingsForScreening(new ScreeningDTO(movieTitle, roomName, timeOfScreening));
         String seatsString = String.join(", ", seats.stream().map(SeatDTO::toString).toList());
         for (SeatDTO seatDTO : seats) {
             Seat seat = this.seatMapper.convertSeatDtoToEntity(seatDTO);
+            if (!this.bookingValidator.isValidSeatForRoom(roomName, seatDTO)) {
+                return String.format("Seat %s does not exist in this room", seatDTO);
+            }
+            if (!this.bookingValidator.isSeatFree(bookingsForScreening, seatDTO)) {
+                return String.format("Seat %s is already taken", seatDTO);
+            }
             this.seatRepository.save(seat);
             LocalDateTime screeningTime = this.dateTimeConverter.convertScreeningTimeString(timeOfScreening);
             Booking bookingEntity = Booking.builder()
@@ -49,6 +58,16 @@ public class BookingService {
         this.bookingRepository.saveAll(bookingsToSave);
         // TODO booking prices
         return String.format("Seats booked: %s; the price for this booking is %d HUF", seatsString, 1500);
+    }
+
+    private List<BookingDTO> getBookingsForScreening(ScreeningDTO screeningDTO) {
+        // TODO this throws an error because it's not flushed and nor transient
+        return this.bookingRepository
+                .getBookingsByScreening(this.screeningMapper.mapScreeningDtoToEntity(screeningDTO))
+                .get()
+                .stream()
+                .map(this.bookingMapper::convertBookingEntityToDto)
+                .toList();
     }
 
     public String getBookingsForUser(String userName) {

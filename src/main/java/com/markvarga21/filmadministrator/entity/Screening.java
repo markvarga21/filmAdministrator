@@ -2,7 +2,6 @@ package com.markvarga21.filmadministrator.entity;
 
 import com.markvarga21.filmadministrator.util.CompositeKey;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
