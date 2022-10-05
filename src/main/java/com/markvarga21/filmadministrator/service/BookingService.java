@@ -12,6 +12,7 @@ import com.markvarga21.filmadministrator.mapping.SeatMapper;
 import com.markvarga21.filmadministrator.repository.BookingRepository;
 import com.markvarga21.filmadministrator.repository.SeatRepository;
 import com.markvarga21.filmadministrator.util.BookingValidator;
+import com.markvarga21.filmadministrator.util.PriceCalculator;
 import com.markvarga21.filmadministrator.util.ScreeningDateTimeConverter;
 import com.markvarga21.filmadministrator.util.SeatConverter;
 import lombok.RequiredArgsConstructor;
@@ -32,6 +33,7 @@ public class BookingService {
     private final BookingMapper bookingMapper;
     private final ScreeningMapper screeningMapper;
     private final BookingValidator bookingValidator;
+    private final PriceCalculator priceCalculator;
 
     public String saveBookings(String userName, String movieTitle, String roomName, String timeOfScreening, String seatsToBook) {
         List<SeatDTO> seats = this.seatConverter.convertSeatStringToList(seatsToBook, roomName);
@@ -56,8 +58,8 @@ public class BookingService {
             bookingsToSave.add(bookingEntity);
         }
         this.bookingRepository.saveAll(bookingsToSave);
-        // TODO booking prices
-        return String.format("Seats booked: %s; the price for this booking is %d HUF", seatsString, 1500);
+        Long bookingPrice = this.priceCalculator.calculatePricing(seats.size(), roomName);
+        return String.format("Seats booked: %s; the price for this booking is %d HUF", seatsString, bookingPrice);
     }
 
     private List<BookingDTO> getBookingsForScreening(ScreeningDTO screeningDTO) {
@@ -101,7 +103,7 @@ public class BookingService {
                     screenings.get(i).getMovieName(),
                     screenings.get(i).getRoomName(),
                     screenings.get(i).getTimeOfScreening(),
-                    1300
+                    this.priceCalculator.calculatePricing(bookedSeats.size(), screenings.get(i).getRoomName())
                     );
             stringBuilder.append(bookRecord);
             if (i < screenings.size() - 1) {
