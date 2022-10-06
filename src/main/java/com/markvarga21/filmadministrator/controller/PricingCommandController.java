@@ -42,4 +42,10 @@ public class PricingCommandController {
     public String attachPriceComponentToMovie(String componentName, String movieName) {
         return this.pricingService.attachPriceComponentToMovie(componentName, movieName);
     }
+
+    @ShellMethod(value = "Attaching price components to screenings.", key = "attach price component to screening")
+    @ShellMethodAvailability("checkAdmin")
+    public String attachPriceComponentToScreening(String componentName, String movieName, String roomName, String dateOfScreening) {
+        return this.pricingService.attachPriceComponentToScreening(componentName, movieName, roomName, dateOfScreening);
+    }
 }

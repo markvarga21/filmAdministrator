@@ -1,16 +1,10 @@
 package com.markvarga21.filmadministrator.service;
 
 import com.markvarga21.filmadministrator.dto.PriceComponentDTO;
-import com.markvarga21.filmadministrator.entity.BasePrice;
-import com.markvarga21.filmadministrator.entity.MoviePriceAttachment;
-import com.markvarga21.filmadministrator.entity.PriceComponent;
-import com.markvarga21.filmadministrator.entity.RoomPriceAttachment;
+import com.markvarga21.filmadministrator.entity.*;
 import com.markvarga21.filmadministrator.mapping.BasePriceMapper;
 import com.markvarga21.filmadministrator.mapping.PriceComponentMapper;
-import com.markvarga21.filmadministrator.repository.BasePriceRepository;
-import com.markvarga21.filmadministrator.repository.MoviePriceAttachmentRepository;
-import com.markvarga21.filmadministrator.repository.PriceComponentRepository;
-import com.markvarga21.filmadministrator.repository.RoomPriceAttachmentRepository;
+import com.markvarga21.filmadministrator.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -23,6 +17,7 @@ public class PricingService {
     private final PriceComponentRepository priceComponentRepository;
     private final RoomPriceAttachmentRepository roomPriceAttachmentRepository;
     private final MoviePriceAttachmentRepository moviePriceAttachmentRepository;
+    private final ScreeningPriceAttachmentRepository screeningPriceAttachmentRepository;
     private final BasePriceMapper basePriceMapper;
     private final PriceComponentMapper priceComponentMapper;
 
@@ -76,6 +71,24 @@ public class PricingService {
         return this.getPriceForComponent(componentName);
     }
 
+    public Long getAttachmentForScreening(String roomName, String movieName, String screeningDate) {
+        var componentNameOptional = this.screeningPriceAttachmentRepository
+                .findAll()
+                .stream()
+                .filter(screeningPriceAttachment ->
+                        screeningPriceAttachment.getRoomName().equals(roomName) &&
+                                screeningPriceAttachment.getMovieName().equals(movieName) &&
+                                screeningPriceAttachment.getScreeningDate().equals(screeningDate)
+                )
+                .map(ScreeningPriceAttachment::getComponentName)
+                .findFirst();
+        if (componentNameOptional.isEmpty()) {
+            return 0L;
+        }
+        String componentName = componentNameOptional.get();
+        return this.getPriceForComponent(componentName);
+    }
+
     private Long getPriceForComponent(String componentName) {
         var componentPriceOptional = this.priceComponentRepository
                 .findAll()
@@ -111,5 +124,19 @@ public class PricingService {
         moviePriceAttachment.setMovieName(movieName);
         this.moviePriceAttachmentRepository.save(moviePriceAttachment);
         return String.format("Component with name %s attached to movie %s", componentName, movieName);
+    }
+
+    public String attachPriceComponentToScreening(String componentName, String movieName, String roomName, String dateOfScreening) {
+        ScreeningPriceAttachment screeningPriceAttachment = new ScreeningPriceAttachment();
+        screeningPriceAttachment.setComponentName(componentName);
+        screeningPriceAttachment.setMovieName(movieName);
+        screeningPriceAttachment.setRoomName(roomName);
+        screeningPriceAttachment.setScreeningDate(dateOfScreening);
+        this.screeningPriceAttachmentRepository.save((screeningPriceAttachment));
+        return String.format("Component with name %s attached to screening %s, %s, %s",
+                componentName,
+                movieName,
+                roomName,
+                dateOfScreening);
     }
 }
