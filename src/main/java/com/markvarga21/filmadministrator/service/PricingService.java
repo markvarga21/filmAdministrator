@@ -2,11 +2,13 @@ package com.markvarga21.filmadministrator.service;
 
 import com.markvarga21.filmadministrator.dto.PriceComponentDTO;
 import com.markvarga21.filmadministrator.entity.BasePrice;
+import com.markvarga21.filmadministrator.entity.MoviePriceAttachment;
 import com.markvarga21.filmadministrator.entity.PriceComponent;
 import com.markvarga21.filmadministrator.entity.RoomPriceAttachment;
 import com.markvarga21.filmadministrator.mapping.BasePriceMapper;
 import com.markvarga21.filmadministrator.mapping.PriceComponentMapper;
 import com.markvarga21.filmadministrator.repository.BasePriceRepository;
+import com.markvarga21.filmadministrator.repository.MoviePriceAttachmentRepository;
 import com.markvarga21.filmadministrator.repository.PriceComponentRepository;
 import com.markvarga21.filmadministrator.repository.RoomPriceAttachmentRepository;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +22,7 @@ public class PricingService {
     private final BasePriceRepository basePriceRepository;
     private final PriceComponentRepository priceComponentRepository;
     private final RoomPriceAttachmentRepository roomPriceAttachmentRepository;
+    private final MoviePriceAttachmentRepository moviePriceAttachmentRepository;
     private final BasePriceMapper basePriceMapper;
     private final PriceComponentMapper priceComponentMapper;
 
@@ -56,6 +59,24 @@ public class PricingService {
             return 0L;
         }
         String componentName = componentNameOptional.get();
+        return this.getPriceForComponent(componentName);
+    }
+
+    public Long getAttachmentForMovie(String movieName) {
+        var componentNameOptional = this.moviePriceAttachmentRepository
+                .findAll()
+                .stream()
+                .filter(moviePriceAttachment -> moviePriceAttachment.getMovieName().equals(movieName))
+                .map(MoviePriceAttachment::getComponentName)
+                .findFirst();
+        if (componentNameOptional.isEmpty()) {
+            return 0L;
+        }
+        String componentName = componentNameOptional.get();
+        return this.getPriceForComponent(componentName);
+    }
+
+    private Long getPriceForComponent(String componentName) {
         var componentPriceOptional = this.priceComponentRepository
                 .findAll()
                 .stream()
@@ -65,7 +86,6 @@ public class PricingService {
         if (componentPriceOptional.isEmpty()) {
             return 0L;
         }
-
         return componentPriceOptional.get();
     }
 
@@ -83,5 +103,13 @@ public class PricingService {
         roomPriceAttachment.setRoomName(roomName);
         this.roomPriceAttachmentRepository.save(roomPriceAttachment);
         return String.format("Component with name %s attached to room %s", componentName, roomName);
+    }
+
+    public String attachPriceComponentToMovie(String componentName, String movieName) {
+        MoviePriceAttachment moviePriceAttachment = new MoviePriceAttachment();
+        moviePriceAttachment.setComponentName(componentName);
+        moviePriceAttachment.setMovieName(movieName);
+        this.moviePriceAttachmentRepository.save(moviePriceAttachment);
+        return String.format("Component with name %s attached to movie %s", componentName, movieName);
     }
 }

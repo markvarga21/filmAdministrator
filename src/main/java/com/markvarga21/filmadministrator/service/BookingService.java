@@ -58,7 +58,7 @@ public class BookingService {
             bookingsToSave.add(bookingEntity);
         }
         this.bookingRepository.saveAll(bookingsToSave);
-        Long bookingPrice = this.priceCalculator.calculatePricing(seats.size(), roomName);
+        Long bookingPrice = this.priceCalculator.calculatePricing(seats.size(), roomName, movieTitle);
         return String.format("Seats booked: %s; the price for this booking is %d HUF", seatsString, bookingPrice);
     }
 
@@ -103,7 +103,10 @@ public class BookingService {
                     screenings.get(i).getMovieName(),
                     screenings.get(i).getRoomName(),
                     screenings.get(i).getTimeOfScreening(),
-                    this.priceCalculator.calculatePricing(bookedSeats.size(), screenings.get(i).getRoomName())
+                    this.priceCalculator.calculatePricing(
+                            bookedSeats.size(),
+                            screenings.get(i).getRoomName(),
+                            screenings.get(i).getMovieName())
                     );
             stringBuilder.append(bookRecord);
             if (i < screenings.size() - 1) {
