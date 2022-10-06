@@ -13,4 +13,8 @@ public class SeatConverter {
                 .map(s -> new SeatDTO(roomName, Long.valueOf(s.split(",")[0]), Long.valueOf(s.split(",")[1])))
                 .toList();
     }
+
+    public int getSeatNumberOfString(String seats) {
+        return seats.split(" ").length;
+    }
 }

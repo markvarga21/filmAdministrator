@@ -48,4 +48,9 @@ public class PricingCommandController {
     public String attachPriceComponentToScreening(String componentName, String movieName, String roomName, String dateOfScreening) {
         return this.pricingService.attachPriceComponentToScreening(componentName, movieName, roomName, dateOfScreening);
     }
+
+    @ShellMethod(value = "Getting price information about a booking.", key = "show price for")
+    public String getInfoAboutBookingPrice(String movieTitle, String roomName, String screeningDate, String seats) {
+        return this.pricingService.getInfoAboutBookingPrice(movieTitle, roomName, screeningDate, seats);
+    }
 }

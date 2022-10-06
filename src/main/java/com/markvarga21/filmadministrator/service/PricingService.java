@@ -5,6 +5,7 @@ import com.markvarga21.filmadministrator.entity.*;
 import com.markvarga21.filmadministrator.mapping.BasePriceMapper;
 import com.markvarga21.filmadministrator.mapping.PriceComponentMapper;
 import com.markvarga21.filmadministrator.repository.*;
+import com.markvarga21.filmadministrator.util.SeatConverter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -19,6 +20,7 @@ public class PricingService {
     private final MoviePriceAttachmentRepository moviePriceAttachmentRepository;
     private final ScreeningPriceAttachmentRepository screeningPriceAttachmentRepository;
     private final BasePriceMapper basePriceMapper;
+    private final SeatConverter seatConverter;
     private final PriceComponentMapper priceComponentMapper;
 
     @PostConstruct
@@ -138,5 +140,16 @@ public class PricingService {
                 movieName,
                 roomName,
                 dateOfScreening);
+    }
+
+    public String getInfoAboutBookingPrice(String movieTitle, String roomName, String screeningDate, String seats) {
+        int numberOfSeats = this.seatConverter.getSeatNumberOfString(seats);
+        Long roomPrice = this.getAttachmentForRoom(roomName);
+        Long moviePrice = this.getAttachmentForMovie(movieTitle);
+        Long screeningPrice = this.getAttachmentForScreening(roomName, movieTitle, screeningDate);
+        Long basePrice = this.getBasePrice();
+
+        Long totalPrice = (roomPrice + moviePrice + screeningPrice + basePrice) * numberOfSeats;
+        return String.format("The price for this booking would be %d", totalPrice);
     }
 }
